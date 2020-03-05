@@ -25,7 +25,7 @@ public class RobotColorSensor {
   }
 
   public RobotColorSensor(ColorSensorV3 colorSensorV3) {
-    this.colorSensor = colorSensorV3;
+    colorSensor = colorSensorV3;
     colorMatcher = new ColorMatch();
 
     listOfColorsFound = new ArrayList<>();

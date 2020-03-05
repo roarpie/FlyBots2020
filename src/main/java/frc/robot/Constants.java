@@ -26,6 +26,7 @@ public final class Constants {
   public static int ELEVATOR_MOTOR_PORT = 00;
   public static int ARM_MOTOR_PORT = 00;
   public static int BALL_INTAKE_MOTOR_PORT = 00;
+  public static int COLOR_WHEEL_MOTOR_PORT = 00;
   
   public static int BALL_RELEASE_PISTON_PORT = 00;
   public static int DOOR_MANIPULATION_PISTON_PORT = 00;

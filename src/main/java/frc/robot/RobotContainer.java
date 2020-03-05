@@ -7,14 +7,20 @@
 
 package frc.robot;
 
+import com.revrobotics.ColorSensorV3;
+
 import edu.wpi.first.wpilibj.GenericHID;
+import edu.wpi.first.wpilibj.I2C;
 import edu.wpi.first.wpilibj.XboxController;
 import edu.wpi.first.wpilibj.GenericHID.Hand;
-import frc.robot.commands.ExampleCommand;
+import frc.robot.sensors.RobotColorSensor.ColorType;
+import frc.robot.subsystems.BallCollector;
+import frc.robot.subsystems.ColorMatcher;
 import frc.robot.subsystems.DriveSubsystem;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.RunCommand;
 import edu.wpi.first.wpilibj2.command.button.JoystickButton;
+import edu.wpi.first.wpilibj2.command.button.Button;
 
 /**
  * This class is where the bulk of the robot should be declared.  Since Command-based is a
@@ -24,7 +30,10 @@ import edu.wpi.first.wpilibj2.command.button.JoystickButton;
  */
 public class RobotContainer {
   // The robot's subsystems and commands are defined here...
-  private final DriveSubsystem driveSubsystem = new DriveSubsystem();
+  private final DriveSubsystem driveSubsystem;
+  private final BallCollector ballCollector;
+  private final ColorSensorV3 colorSensor;
+  private final ColorMatcher colorMatcher;
 
   XboxController xboxController = new XboxController(Constants.XBOX_CONTROLLER_PORT);
 
@@ -32,8 +41,11 @@ public class RobotContainer {
    * The container for the robot.  Contains subsystems, OI devices, and commands.
    */
   public RobotContainer() {
-    // Configure the button bindings
-    configureButtonBindings();
+    driveSubsystem = new DriveSubsystem();
+    ballCollector = new BallCollector();
+
+    colorSensor = new ColorSensorV3(I2C.Port.kOnboard);
+    colorMatcher = new ColorMatcher(colorSensor);
 
     driveSubsystem.setDefaultCommand(new RunCommand(() -> {
       driveSubsystem.mecanumDrive(
@@ -42,6 +54,9 @@ public class RobotContainer {
         xboxController.getX(Hand.kRight)
       );
     }));
+
+    // Configure the button bindings
+    configureButtonBindings();
   }
 
   /**
@@ -51,9 +66,13 @@ public class RobotContainer {
    * {@link edu.wpi.first.wpilibj2.command.button.JoystickButton}.
    */
   private void configureButtonBindings() {
-    // new JoystickButton(joystick, buttonNumber).when
-  }
+    Button aButton = new JoystickButton(xboxController, 1);
+    aButton.whenHeld(new RunCommand(() -> ballCollector.startBallIntake()));
+    aButton.whenReleased(new RunCommand(() -> ballCollector.stopBallIntake()));
 
+    Button bButton = new JoystickButton(xboxController, 2);
+    bButton.whenPressed(new RunCommand(() -> colorMatcher.moveToColor(ColorType.RED)));
+  }
 
   /**
    * Use this to pass the autonomous command to the main {@link Robot} class.
